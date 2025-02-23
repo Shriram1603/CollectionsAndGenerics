@@ -241,3 +241,99 @@ numbers.AddAfter(node, 5);
 // Remove an element (O(1) if reference is known)
 numbers.Remove(2);
 ```
+
+# IEnumerable vs. ToList()
+
+## IEnumerable<T>
+IEnumerable<T> is an interface that represents a sequence of elements that can be iterated over. It supports deferred execution, meaning that the query is not executed immediately but only when you iterate over it.
+
+**Characteristics:**
+- Supports deferred execution (query is only executed when iterated).
+- Lazy evaluation (only fetches data when needed).
+- Cannot modify the collection (read-only).
+- More memory-efficient for large datasets.
+
+  
+**Example:** Deferred Execution with IEnumerable<T>
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+
+        // IEnumerable with LINQ (Deferred Execution)
+        IEnumerable<int> query = numbers.Where(n => n > 2); 
+
+        numbers.Add(6); // Modifying the list AFTER defining the query
+
+        // Now executing the query (fetching data)
+        foreach (var num in query)
+        {
+            Console.WriteLine(num);
+        }
+    }
+}
+```
+
+```Output
+3
+4
+5
+6
+```
+
+- query doesn't execute immediately when declared.
+- Since execution happens during iteration, newly added elements are included (lazy evaluation).
+
+## ToList()
+
+ToList() forces immediate execution of a query, converting it into a List<T>`. This means the data is fetched and stored in memory immediately.
+
+**Characteristics:**
+
+- Forces immediate execution (eager evaluation).
+- Stores results in a List<T> (no further changes reflect).
+- Consumes more memory (useful when data needs to be reused multiple times).
+
+**Example:** Immediate Execution with ToList()
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+
+        // ToList() forces execution immediately
+        List<int> resultList = numbers.Where(n => n > 2).ToList();
+
+        numbers.Add(6); // Modifying the list AFTER executing query
+
+        // The list remains unchanged (detached from original)
+        foreach (var num in resultList)
+        {
+            Console.WriteLine(num);
+        }
+    }
+}
+
+```
+
+```Output
+3
+4
+5
+```
+
+- ToList() immediately executes the query and stores the result in resultList.
+- Any future changes to numbers do not affect resultList.
